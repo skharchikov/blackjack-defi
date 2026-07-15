@@ -33,6 +33,18 @@ cargo run -p cli
 SERVER_URL=https://blackjack.skh.rs cargo run -p cli
 ```
 
+### Raspberry Pi (no compilation needed)
+
+Every `cli-v*` release ships a prebuilt aarch64 binary (built by
+[`pi-binary.yml`](.github/workflows/pi-binary.yml), requires a 64-bit Pi OS):
+
+Grab the newest `cli-v*` tag from the [releases page](https://github.com/skharchikov/blackjack/releases) (releases for other packages don't carry the binary), then:
+
+```bash
+curl -sL https://github.com/skharchikov/blackjack/releases/download/cli-v0.1.1/blackjack-cli-aarch64-linux.tar.gz | tar xz
+SERVER_URL=https://blackjack.skh.rs ./blackjack-cli
+```
+
 ### Accounts
 
 Enter any username + password on the login screen — the account is auto-created on first login. Same credentials on subsequent logins authenticate you.

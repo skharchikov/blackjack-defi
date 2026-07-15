@@ -1,0 +1,62 @@
+# Why this exists: the CLI is played on a Raspberry Pi 4, and compiling the
+# workspace there takes ages (and requires a Rust toolchain on the Pi). This
+# workflow builds an aarch64 binary in CI whenever release-plz publishes a
+# cli-v* release and attaches it as a release asset, so the Pi only needs to
+# download and run it.
+#
+# Notes:
+# - Runs natively on GitHub's free arm64 runners (public repos only), so no
+#   cross-compilation toolchain is needed.
+# - Pinned to ubuntu-22.04-arm (glibc 2.35), not 24.04 (glibc 2.39): Raspberry
+#   Pi OS bookworm ships glibc 2.36, and the binary must not require a newer
+#   glibc than the Pi has.
+# - Assumes a 64-bit Pi OS. A 32-bit OS would need an armv7 build instead.
+name: Raspberry Pi binary
+
+on:
+  release:
+    types: [published]
+  # Manual backfill for releases published before this workflow existed,
+  # or re-runs after a failed upload.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing cli-v* release tag to build and upload for (e.g. cli-v0.1.1)"
+        required: true
+        type: string
+
+jobs:
+  build-and-upload:
+    name: Build aarch64 CLI & attach to release
+    # release-plz also publishes bj-core-v* / server-v* releases; only the CLI
+    # ships a user-facing binary, so skip everything else.
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'cli-v')
+    runs-on: ubuntu-22.04-arm
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.event.release.tag_name }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build CLI (release)
+        run: cargo build --release -p cli
+
+      - name: Package binary
+        # Tarball (rather than a bare binary) so the executable bit survives
+        # the download.
+        run: |
+          cp target/release/cli blackjack-cli
+          tar czf blackjack-cli-aarch64-linux.tar.gz blackjack-cli
+
+      - name: Upload to release
+        # --clobber makes manual re-runs idempotent.
+        run: gh release upload "$TAG" blackjack-cli-aarch64-linux.tar.gz --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

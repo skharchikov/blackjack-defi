@@ -20,7 +20,7 @@ use crate::{
 const NEW_PLAYER_CHIPS: u32 = 1_000;
 use bj_core::domain::{
     engine::command::player::{
-        Hit, JoinTable, LeaveSeat, LeaveTable, PlaceBet, PlayerAction, Stand, TakeSeat,
+        DoubleDown, Hit, JoinTable, LeaveSeat, LeaveTable, PlaceBet, PlayerAction, Stand, TakeSeat,
     },
     engine::snapshot::GameEventDto,
     Seat, TableId,
@@ -456,6 +456,20 @@ async fn handle_client_msg(
                 &table_id,
                 request_id,
                 PlayerAction::Stand(Stand { player_id }),
+            )
+            .await?;
+        }
+        ClientMessage::DoubleDown {
+            table_id,
+            request_id,
+        } => {
+            send_player_cmd(
+                socket,
+                state,
+                player_id,
+                &table_id,
+                request_id,
+                PlayerAction::DoubleDown(DoubleDown { player_id }),
             )
             .await?;
         }

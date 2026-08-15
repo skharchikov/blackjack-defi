@@ -2,4 +2,5 @@
 pub enum PlayerDecision {
     Hit,
     Stand,
+    Double,
 }

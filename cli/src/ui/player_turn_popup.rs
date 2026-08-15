@@ -65,19 +65,22 @@ pub fn render_player_turn_popup(frame: &mut Frame, area: Rect, ui: &UiState) {
 
     // Buttons
     let buttons = Line::from(vec![
-        Span::raw("  "),
         Span::styled(
             "[ H ] Hit",
             Style::default()
                 .fg(COLOR_GREEN)
                 .add_modifier(Modifier::BOLD),
         ),
-        Span::raw("          "),
+        Span::raw("    "),
         Span::styled(
             "[ S ] Stand",
             Style::default().fg(COLOR_RED).add_modifier(Modifier::BOLD),
         ),
-        Span::raw("  "),
+        Span::raw("    "),
+        Span::styled(
+            "[ D ] Double",
+            Style::default().fg(COLOR_CYAN).add_modifier(Modifier::BOLD),
+        ),
     ]);
     frame.render_widget(
         Paragraph::new(buttons).alignment(Alignment::Center),

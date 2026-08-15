@@ -17,6 +17,8 @@ pub enum CommandError {
     InsufficientBalance { balance: u32, amount: u32 },
     #[error("player already placed a bet this round")]
     AlreadyPlacedBet,
+    #[error("double down is only allowed on the initial two-card hand")]
+    CannotDoubleDown,
     #[error("shoe is empty")]
     ShoeEmpty,
     #[error("table is full")]

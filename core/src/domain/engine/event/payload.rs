@@ -33,6 +33,11 @@ pub enum EventPayload {
         player: PlayerId,
         amount: u32,
     },
+    /// Player doubled their stake; `amount` is the additional bet matching the original.
+    PlayerDoubledDown {
+        player: PlayerId,
+        amount: u32,
+    },
     GameStarted,
     PhaseChanged {
         from: Phase,

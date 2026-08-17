@@ -25,9 +25,7 @@ impl CommandHandler for PlaceBet {
             });
         }
         let player = state
-            .players
-            .iter()
-            .find(|p| p.player_id == self.player_id)
+            .player(self.player_id)
             .ok_or(CommandError::PlayerNotFound(self.player_id))?;
         if player.bet.is_some() {
             return Err(CommandError::AlreadyPlacedBet);

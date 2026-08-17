@@ -636,6 +636,15 @@ fn apply_event_payload(
                 }
                 table.log(format!("#{seq} {} bet {}", short_id(&pid), amount));
             }
+            EventPayload::PlayerDoubledDown { player, amount } => {
+                let pid = player.to_string();
+                if let Some(p) = table.players.iter_mut().find(|p| p.player_id == pid) {
+                    p.bet = Some(p.bet.unwrap_or(0) + amount);
+                    p.balance = p.balance.saturating_sub(amount);
+                    p.status = "doubled".into();
+                }
+                table.log(format!("#{seq} {} doubled (+{})", short_id(&pid), amount));
+            }
             EventPayload::GameStarted => {
                 for p in &mut table.players {
                     p.hand.cards.clear();

@@ -24,9 +24,7 @@ impl CommandHandler for Hit {
         }
         let card = state.next_card().ok_or(CommandError::ShoeEmpty)?;
         let player = state
-            .players
-            .iter()
-            .find(|p| p.player_id == self.player_id)
+            .player(self.player_id)
             .ok_or(CommandError::PlayerNotFound(self.player_id))?;
 
         let mut events = vec![EventPayload::PlayerCardDealt {
